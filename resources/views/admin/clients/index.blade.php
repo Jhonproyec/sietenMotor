@@ -35,7 +35,7 @@
                         <th scope="col" class="px-6 py-3">Nombre Cliente</th>
                         <th scope="col" class="px-6 py-3">Teléfono</th>
                         <th scope="col" class="px-6 py-3">Correo</th>
-                        <th scope="col" class="px-6 py-3">Fecha Alta Cliente</th>
+                        <th scope="col" class="px-6 py-3">Fecha Alta Cliente</th> 
                         <th scope="col" class="px-6 py-3 text-center">Acciones</th>
                     </tr>
                 </thead>

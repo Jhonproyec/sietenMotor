@@ -42,7 +42,7 @@
                 </thead>
                 <tbody>
                     @foreach ($vehicles as $vehicle)
-                        <tr>
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
                             <td class="px-6 py-4">{{ $vehicle['brand_model'] }}</td>
                             <td class="px-6 py-4">{{ $vehicle['registration'] }}</td>
                             <td class="px-6 py-4">{{ $vehicle['year'] }}</td>
