@@ -21,7 +21,8 @@ class DetailVehicleController extends Controller
 
         $vehicle = Vehicles::select('vehicles.*',
             DB::raw("CONCAT(clients.name, ' ', clients.lastname) as owner_full_name"),
-            DB::raw("CONCAT(vehicles.brand, ' ', vehicles.model, ' ', vehicles.year) as info_car     ")
+            DB::raw("CONCAT(vehicles.brand, ' ', vehicles.model, ' ', vehicles.year) as info_car"),
+            DB::raw("DATE_FORMAT(vehicles.date_entered, '%d-%m-%Y') as formatted_date")
         )
         ->join('clients', 'clients.id', '=', 'vehicles.id_client')
         ->where('vehicles.id', $id_vehicle)
@@ -29,6 +30,11 @@ class DetailVehicleController extends Controller
 
 
         $maintenances = Maintenance::where('id_vehicle', $id_vehicle)
+        ->select(
+            '*',
+            DB::raw("DATE_FORMAT(date_maintenance, '%d-%m-%Y') as formatted_date_maintenance"),
+            DB::raw("DATE_FORMAT(date_next_maintenance, '%d-%m-%Y') as formatted_date_next_maintenance")
+        )
         ->orderBy('id', 'desc')
         ->get();
     

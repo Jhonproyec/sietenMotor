@@ -1,3 +1,12 @@
+window.addEventListener('load', function() {
+    setTimeout(function() {
+      const body = document.querySelector('html');
+      if (body.classList.contains('dark')) {
+        body.classList.remove('dark');
+      }
+    }, 1);  // Espera 500ms antes de ejecutar
+  });
+
 
     // Obtener todos los botones para abrir modales
     const modalButtons = document.querySelectorAll('.openModalButton');

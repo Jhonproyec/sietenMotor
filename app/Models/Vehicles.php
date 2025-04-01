@@ -20,5 +20,6 @@ class Vehicles extends Model
         'fuel_type', // Tipo de combustible
         'id_client',               // Asigna un cliente aleatorio
         'id_user',
+        'date_entered',
     ];
 }

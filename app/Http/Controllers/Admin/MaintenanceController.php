@@ -7,6 +7,7 @@ use App\Models\Maintenance;
 use App\Models\Vehicles;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 
 class MaintenanceController extends Controller
@@ -38,7 +39,8 @@ class MaintenanceController extends Controller
             'date_maintenance' => 'nullable|date',
             'date_next_maintenance' => 'nullable|date',
             'status' => 'nullable|string',
-            'factura' => 'nullable|file|mimes:pdf|max:2048'
+            'factura' => 'nullable|file|mimes:pdf|max:2048',
+            'description_maintenance' => 'required|string'
         ]);
 
         if ($request->id_maintenance == null) {
@@ -48,7 +50,8 @@ class MaintenanceController extends Controller
                 'date_next_maintenance' => $request->date_next_maintenance,
                 'status' => $request->status,
                 'factura' => null,
-                'id_vehicle' => $request->id_vehicle
+                'id_vehicle' => $request->id_vehicle,
+                'description_maintenance' => $request->description_maintenance
             ]);
         } else {
             // Actualizar el registro existente
@@ -58,40 +61,52 @@ class MaintenanceController extends Controller
                 'date_maintenance' => $request->date_maintenance,
                 'date_next_maintenance' => $request->date_next_maintenance,
                 'status' => $request->status,
+                'description_maintenance' => $request->description_maintenance,
             ]);
         }
 
         if ($request->hasFile('factura')) {
             $file = $request->file('factura');
         
+            // Si el mantenimiento ya tiene una factura, eliminar el archivo anterior
             if ($maintenance->factura) {
                 $oldFilePath = str_replace('storage/', 'public/', $maintenance->factura);
                 Storage::delete($oldFilePath); // Usa Storage para borrar el archivo
             }
         
+            // Generar el nombre del archivo usando el ID del mantenimiento
             $fileName = 'factura_' . $maintenance->id . '.' . $file->getClientOriginalExtension();
         
-            $filePath = $file->storeAs('public/facturas', $fileName);
+            // Guardar el archivo en la carpeta 'public/facturas'
+            $file->storeAs('public/facturas', $fileName);
         
-            $maintenance->update(['factura' => str_replace('public/', 'storage/', $filePath)]);
+            // Actualizar solo el nombre del archivo en la base de datos
+            $maintenance->update(['factura' => 'facturas/' . $fileName]);
         }
 
-        $vehicle = Vehicles::select('vehicles.*',
+        $vehicle = Vehicles::select(
+            'vehicles.*',
             DB::raw("CONCAT(clients.name, ' ', clients.lastname) as owner_full_name"),
-            DB::raw("CONCAT(vehicles.brand, ' ', vehicles.model, ' ', vehicles.year) as info_car     ")
+            DB::raw("CONCAT(vehicles.brand, ' ', vehicles.model, ' ', vehicles.year) as info_car"),
+            DB::raw("DATE_FORMAT(vehicles.date_entered, '%d-%m-%Y') as formatted_date")
         )
-        ->join('clients', 'clients.id', '=', 'vehicles.id_client')
-        ->where('vehicles.id', $request->id_vehicle)
-        ->firstOrFail();
+            ->join('clients', 'clients.id', '=', 'vehicles.id_client')
+            ->where('vehicles.id', $maintenance->id)
+            ->firstOrFail();
 
-        $maintenances = Maintenance::where('id_vehicle', $request->id_vehicle)
-        ->orderBy('id', 'desc')
-        ->get();
-        return view('admin.detail_vehicle.index', [
-            'vehicle' => $vehicle,
-            'maintenances' => $maintenances,
-            'tab' => 'tab2' // Activar la pestaña de mantenimiento
-        ]);
+
+        $maintenances = Maintenance::where('id_vehicle', $maintenance->id)
+            ->select(
+                '*',
+                DB::raw("DATE_FORMAT(date_maintenance, '%d-%m-%Y') as formatted_date_maintenance"),
+                DB::raw("DATE_FORMAT(date_next_maintenance, '%d-%m-%Y') as formatted_date_next_maintenance")
+            )
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $tap = 2;
+
+        return redirect()->back();
     }
 
 
@@ -135,28 +150,36 @@ class MaintenanceController extends Controller
         session()->flash('swal', [
             'icon' => 'success',
             'title' => 'Eliminado',
-            'text' => 'Cliente eliminado correctamente'
+            'text' => 'Mantenimiento eliminado correctamente'
         ]);
 
 
-        $vehicle = Vehicles::select('vehicles.*',
+        $vehicle = Vehicles::select(
+            'vehicles.*',
             DB::raw("CONCAT(clients.name, ' ', clients.lastname) as owner_full_name"),
             DB::raw("CONCAT(vehicles.brand, ' ', vehicles.model, ' ', vehicles.year) as info_car     ")
         )
-        ->join('clients', 'clients.id', '=', 'vehicles.id_client')
-        ->where('vehicles.id', $maintenance->id_vehicle)
-        ->firstOrFail();
+            ->join('clients', 'clients.id', '=', 'vehicles.id_client')
+            ->where('vehicles.id', $maintenance->id_vehicle)
+            ->firstOrFail();
 
         $maintenances = Maintenance::where('id_vehicle', $maintenance->id_vehicle)
-        ->orderBy('id', 'desc')
-        ->get();
+            ->orderBy('id', 'desc')
+            ->get();
         return view('admin.detail_vehicle.index', [
             'vehicle' => $vehicle,
             'maintenances' => $maintenances,
             'tab' => 'tab2' // Activar la pestaña de mantenimiento
         ]);
+    }
 
+    public function downloadPDF($path)
+    {
+        $path = storage_path('app/private/public/facturas/' . $path);
+        if(!file_exists($path)){
+            return "Estsis";
+        }
 
-
+        return response()->download($path);
     }
 }

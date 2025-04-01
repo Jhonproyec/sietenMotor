@@ -35,16 +35,19 @@
                         <th scope="col" class="px-6 py-3">Nombre Cliente</th>
                         <th scope="col" class="px-6 py-3">Teléfono</th>
                         <th scope="col" class="px-6 py-3">Correo</th>
-                        <th scope="col" class="px-6 py-3">Fecha Alta Cliente</th> 
+                        <th scope="col" class="px-6 py-3">Fecha Alta Cliente</th>
                         <th scope="col" class="px-6 py-3 text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($clients as $client)
                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                            <th scope="row"
-                                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {{ $client['name'] . ' ' . $client['lastname'] }}
+                            <th
+                                scope="row"class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+
+                                <a href="{{ url('/admin/clientes/vehiculos/' . $client->id) }}">
+                                    {{ $client['name'] . ' ' . $client['lastname'] }}
+                                </a>
                             </th>
                             <td class="px-6 py-4">{{ $client['phone'] }}</td>
                             <td class="px-6 py-4">{{ $client['email'] }}</td>
@@ -56,7 +59,9 @@
                                     </flux:button>
 
                                     <flux:menu>
-                                        <flux:menu.item icon="eye">Detalles</flux:menu.item>
+                                        <a href="{{ url('/admin/clientes/vehiculos/' . $client->id) }}">
+                                            <flux:menu.item icon="eye">Detalles</flux:menu.item>
+                                        </a>
                                         <!-- El botón de editar que pasa la información al modal -->
                                         <flux:menu.item icon="pencil-square"
                                             onclick="openModal({{ json_encode($client) }})">Editar</flux:menu.item>
@@ -169,7 +174,7 @@
     @push('js')
         <script>
             function openModal(client) {
- 
+
                 document.querySelector('.modal').classList.remove('hidden');
                 const form = document.querySelector('form');
                 if (client === null) {

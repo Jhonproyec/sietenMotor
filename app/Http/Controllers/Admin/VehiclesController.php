@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Vehicles;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\Maintenance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -16,17 +17,17 @@ class VehiclesController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('perPage', 25);
-        $clients = Client::all();
+        $clients = Client::orderBy('id', 'desc')->get();
         $vehicles = Vehicles::join('clients', 'vehicles.id_client', '=', 'clients.id')
             ->select(
                 'vehicles.*',
                 DB::raw("CONCAT(clients.name, ' ', clients.lastname) as client_name"),
-                DB::raw("CONCAT(vehicles.brand, ' ', vehicles.model) as brand_model")
+                DB::raw("CONCAT(vehicles.brand, ' ', vehicles.model) as brand_model"),
+                DB::raw("DATE_FORMAT(vehicles.date_entered, '%d-%m-%Y') as formatted_date")
             )
             ->orderBy('vehicles.id', 'desc')
             ->paginate($perPage);
 
-        // return $vehicles;
         return view('admin.vehicles.index', compact('vehicles', 'clients', 'perPage'));
     }
 
@@ -54,6 +55,7 @@ class VehiclesController extends Controller
             'no_motor' => 'nullable|string|max:255',
             'fuel_type' => 'nullable|string|max:255',
             'id_client' => 'nullable|required|numeric',
+            'date_entered' => 'required|date'
         ]);
 
         if ($request->id_vehicle === null) {
@@ -81,9 +83,7 @@ class VehiclesController extends Controller
         }
 
 
-
-        // return $request;
-        return redirect()->route('admin.vehiculos.index');
+        return redirect()->back();
     }
 
     /**
@@ -118,19 +118,20 @@ class VehiclesController extends Controller
         $vehicle = Vehicles::findOrFail($id);
         $vehicle->delete();
 
-        
+
         session()->flash('swal', [
             'icon' => 'success',
             'title' => 'Eliminado',
             'text' => 'Vehículo eliminado correctamente'
         ]);
 
-        return redirect()->route('admin.vehiculos.index');
+        return redirect()->back();
     }
- 
+
     public function search(Request $request)
     {
-        $perPage = $request->input('perPage', 25); 
+        $perPage = $request->input('perPage', 25);
+
         $searchTerm = $request->input('search'); // Evitar sombra en la variable
         $clients = Client::all();
         $vehicles = Vehicles::join('clients', 'vehicles.id_client', '=', 'clients.id')
@@ -145,13 +146,44 @@ class VehiclesController extends Controller
             ->select(
                 'vehicles.*',
                 DB::raw("CONCAT(clients.name, ' ', clients.lastname) as client_name"),
-                DB::raw("CONCAT(vehicles.brand, ' ', vehicles.model) as brand_model")
+                DB::raw("CONCAT(vehicles.brand, ' ', vehicles.model) as brand_model"),
+                DB::raw("DATE_FORMAT(vehicles.date_entered, '%d-%m-%Y') as formatted_date")
             )
             ->orderBy('vehicles.id', 'desc')
             ->paginate($perPage); // Agregar la cantidad de elementos por página
-            // return $vehicles;
-            return view('admin.vehicles.index', compact('vehicles', 'clients'));
+        // return $vehicles;
+        return view('admin.vehicles.index', compact('vehicles', 'clients', 'perPage'));
     }
-    
 
+    public function detalles_vehiculo($id){
+        $id_vehicle = $id;
+
+
+        $vehicle = Vehicles::select('vehicles.*',
+            DB::raw("CONCAT(clients.name, ' ', clients.lastname) as owner_full_name"),
+            DB::raw("CONCAT(vehicles.brand, ' ', vehicles.model, ' ', vehicles.year) as info_car"),
+            DB::raw("DATE_FORMAT(vehicles.date_entered, '%d-%m-%Y') as formatted_date")
+        )
+        ->join('clients', 'clients.id', '=', 'vehicles.id_client')
+        ->where('vehicles.id', $id_vehicle)
+        ->firstOrFail();
+
+
+        $maintenances = Maintenance::where('id_vehicle', $id_vehicle)
+        ->select(
+            '*',
+            DB::raw("DATE_FORMAT(date_maintenance, '%d-%m-%Y') as formatted_date_maintenance"),
+            DB::raw("DATE_FORMAT(date_next_maintenance, '%d-%m-%Y') as formatted_date_next_maintenance")
+        )
+        ->orderBy('id', 'desc')
+        ->get();
+    
+        $tap = 1;
+        
+        return view('admin.detail_vehicle.index', [
+            'vehicle' => $vehicle,
+            'maintenances' => $maintenances,
+            'tab' => 'tab1' // Activar la pestaña de mantenimiento
+        ]);
+    }
 }

@@ -2,9 +2,9 @@
     <div class="bg-white border border-gray-200 rounded-lg shadow-sm w-full items-start p-5 relative overflow-x-auto">
 
         <div class="flex border-b">
-            <button id="btn-tab1" class="tab-link p-4 w-1/3 text-center border-b-2 hover:border-[var(--color-btn)] focus:outline-none" onclick="openTab(event, 'tab1')">Detalles de Vehículo</button>
-            <button id="btn-tab2" class="tab-link p-4 w-1/3 text-center border-b-2 hover:border-[var(--color-btn)] focus:outline-none" onclick="openTab(event, 'tab2')">Historial Mantenimiento</button>
-            <button id="btn-tab3" class="tab-link p-4 w-1/3 text-center border-b-2 hover:border-[var(--color-btn)] focus:outline-none" onclick="openTab(event, 'tab3')">Notas</button>
+            <button id="btn-tab1" class="tab-link p-4 w-1/2 text-center border-b-2 hover:border-[var(--color-btn)] focus:outline-none" onclick="openTab(event, 'tab1')">Detalles de Vehículo</button>
+            <button id="btn-tab2" class="tab-link p-4 w-1/2 text-center border-b-2 hover:border-[var(--color-btn)] focus:outline-none" onclick="openTab(event, 'tab2')">Historial Mantenimiento</button>
+            {{-- <button id="btn-tab3" class="tab-link p-4 w-1/3 text-center border-b-2 hover:border-[var(--color-btn)] focus:outline-none" onclick="openTab(event, 'tab3')">Notas</button> --}}
         </div>
 
         <div class="py-6">
@@ -24,18 +24,19 @@
 
                 </div>
                 <div class="border border-gray-300 rounded-lg p-4 w-full md:w-1/2">
-                    <h2 class="text-lg font-semibold mb-4">More Info.</h2>
+                    <h2 class="text-lg font-semibold mb-4">Mas información</h2>
                     <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
-                        <p><span class="font-medium">Marca Vehículo:</span> <span class="font-bold">{{$vehicle['brand']}}</span></p>
-                        <p><span class="font-medium">Modelo:</span> <span class="font-bold">{{$vehicle['model']}}</span></p>
+                        <p><span class="font-medium">Marca Vehículo:</span> <span class="text-gray-700">{{$vehicle['brand']}}</span></p>
+                        <p><span class="font-medium">Modelo:</span> <span class="text-gray-700">{{$vehicle['model']}}</span></p>
 
-                        <p><span class="font-medium">Año:</span> <span class="font-bold">{{$vehicle['year']}}</span></p>
-                        <p><span class="font-medium">No. Chasis</span> <span class="text-gray-500">{{$vehicle['no_chasis'] == null ? 'No indicado' : $vehicle['no_chasis']}}</span></p>
+                        <p><span class="font-medium">Año:</span> <span class="text-gray-700">{{$vehicle['year']}}</span></p>
+                        <p><span class="font-medium">No. Chasis</span> <span class="text-gray-700">{{$vehicle['no_chasis'] == null ? 'No indicado' : $vehicle['no_chasis']}}</span></p>
 
-                        <p><span class="font-medium">Matrícula:</span> <span class="font-bold">{{$vehicle['registration']}}</span></p>
-                        <p><span class="font-medium">No Motor:</span> <span class="text-gray-500">{{$vehicle['no_motor'] == null ? 'No indicado' : $vehicle['no_motor']}}</span></p>
+                        <p><span class="font-medium">Matrícula:</span> <span class="text-gray-700">{{$vehicle['registration']}}</span></p>
+                        <p><span class="font-medium">No Motor:</span> <span class="text-gray-700">{{$vehicle['no_motor'] == null ? 'No indicado' : $vehicle['no_motor']}}</span></p>
 
-                        <p><span class="font-medium">Tipo Gasolina:</span> <span class="font-bold">{{$vehicle['fuel_type'] == null ? 'No indicado' : $vehicle['fuel_type']}}</span></p>
+                        <p><span class="font-medium">Tipo Gasolina:</span> <span class="text-gray-700">{{$vehicle['fuel_type'] == null ? 'No indicado' : $vehicle['fuel_type']}}</span></p>
+                        <p><span class="font-medium">Fecha que ingresó:</span> <span class="text-gray-700">{{$vehicle['formatted_date'] }}</span></p>
 
                     </div>
                 </div>

@@ -21,4 +21,9 @@ class Client extends Model
         'created_at',
         'updated_at'
     ];
+    public function getCreatedAtAttribute($value)
+    {
+        return \Carbon\Carbon::parse($value)->format('d-m-Y'); // Cambia el formato a día-mes-año
+    }
+    
 }

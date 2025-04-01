@@ -25,8 +25,9 @@ class VehiclesFactory extends Factory
             'no_chasis' => $this->faker->bothify('???######???'), // Número de chasis aleatorio
             'no_motor' => $this->faker->bothify('???#####???'), // Número de motor aleatorio
             'fuel_type' => $this->faker->randomElement(['Gasolina', 'Diesel', 'Eléctrico', 'Híbrido']), // Tipo de combustible
-            'id_client' => 1,               // Asigna un cliente aleatorio
-            'id_user' => 1,                   // Asigna un usuario aleatorio
+            'id_client' => 1,               
+            'id_user' => 1,
+            'date_entered' => $this->faker->date($format = 'Y-m-d', $max = 'now'), 
             'created_at' => now(),
             'updated_at' => now(),
         ];

@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Client;
 use App\Http\Controllers\Controller;
+use App\Models\Vehicles;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ClientController extends Controller
 {
@@ -16,8 +19,12 @@ class ClientController extends Controller
             // Obtener el valor de 'perPage' o usar 25 como valor predeterminado
     $perPage = $request->input('perPage', 25);
 
-    // Obtener los clientes con paginación
-    $clients = Client::paginate($perPage);
+    $clients = Client::orderBy('id', 'desc')->paginate($perPage);
+
+    $clients->getCollection()->transform(function ($client) {
+        $client->created_at = Carbon::parse($client->created_at)->format('d-m-Y');
+        return $client;
+    });
 
     return view('admin.clients.index', compact('clients', 'perPage'));
     }
@@ -128,5 +135,24 @@ class ClientController extends Controller
 
         return view('admin.clients.index', compact('clients', 'perPage'));
         
+    }
+
+    public function vehiculos($id){
+    
+        $perPage = 25;
+        $client = Client::findOrFail($id);
+        $clients = Client::orderBy('id', 'desc')->get();
+        $vehicles = Vehicles::where('id_client', $id)
+            ->join('clients', 'vehicles.id_client', '=', 'clients.id')
+            ->select(
+                'vehicles.*',
+                DB::raw("CONCAT(clients.name, ' ', clients.lastname) as client_name"),
+                DB::raw("CONCAT(vehicles.brand, ' ', vehicles.model) as brand_model"),
+                DB::raw("DATE_FORMAT(vehicles.date_entered, '%d-%m-%Y') as formatted_date")
+            )
+            ->orderBy('vehicles.id', 'desc')
+            ->paginate($perPage);
+        
+        return view('admin.clients.vehicle_user', compact('vehicles','client', 'clients', 'perPage'));
     }
 }

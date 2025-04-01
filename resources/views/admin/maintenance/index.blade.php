@@ -15,7 +15,8 @@
                 <th scope="col" class="px-6 py-3">Id. Mantenimiento</th>
                 <th scope="col" class="px-6 py-3">Mecánico Encargado</th>
                 <th scope="col" class="px-6 py-3">Fecha Mantenimiento</th>
-                <th scope="col" class="px-6 py-3">Fecha Estimada Próximo mantenimiento</th>
+                <th scope="col" class="px-6 py-3">Descripción Mantenimiento</th>
+                {{-- <th scope="col" class="px-6 py-3">Fecha Estimada Próximo mantenimiento</th> --}}
                 <th scope="col" class="px-6 py-3">Estado</th>
                 <th scope="col" class="px-6 py-3">Factura</th>
                 <th scope="col" class="px-6 py-3 text-center">Acciones</th>
@@ -27,12 +28,13 @@
             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
                 <td class="px-6 py-4">{{ $maintenance->id}}</td>
                 <td class="px-6 py-4">{{ $maintenance->mechanic_charge}}</td>
-                <td class="px-6 py-4">{{ $maintenance->date_maintenance}}</td>
-                <td class="px-6 py-4">{{ $maintenance->date_next_maintenance == null ? 'No especificado' : $maintenance->date_next_maintenance}}</td>
+                <td class="px-6 py-4">{{ $maintenance->formatted_date_maintenance}}</td>
+                <td class="px-6 py-4">{{ $maintenance->description_maintenance}}</td>
+                {{-- <td class="px-6 py-4">{{ $maintenance->date_next_maintenance == null ? 'No especificado' : $maintenance->formatted_date_next_maintenance}}</td> --}}
                 <td class="px-6 py-4">{{ $maintenance->status}}</td>
                 <td>
                     @if (!empty($maintenance->factura))
-                    <a href="{{ asset($maintenance->factura) }}" download class="flex items-center justify-center">
+                    <a href="{{ route('admin.mantenimiento.downloadPDF', basename($maintenance->factura)) }}" class="flex items-center justify-center">
                         <flux:menu.item style="display: flex; justify-content: center; align-items: center; cursor: pointer;" icon="document-arrow-down"></flux:menu.item>
                     </a>
                     @else
@@ -98,11 +100,11 @@
                         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha Próximo mantenimiento (opcional)</label>
                     <input type="date" id="date_next_maintenance" name="date_next_maintenance"
                         class="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                        placeholder="Juan Perez" required />
+                        placeholder="Juan Perez" />
                 </div>
                 <div class="relative z-0 w-full mb-5 group">
                     <label for="sstatus" class="block mb-2 text-sm font-medium text-gray-900">Seleccionar
-                        Cliente</label>
+                        Estadp</label>
                     <select name="status" required id="status"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ">
                         <option selected>Estado</option>
@@ -114,12 +116,26 @@
                 </div>
             </div>
 
-            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="factura">
-                Cargar Factura (PDF)
-            </label>
-            <input class="block w-full h-10 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer 
-bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 p-2.5"
-                id="factura" type="file" name="factura" accept="application/pdf">
+            <div class="grid md:grid-cols-2 md:gap-6">
+                <div class="relative z-0 w-full mb-5 group">
+                    <label for="description_maintenance"
+                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descripción Mantenimiento</label>
+                    <input type="text" id="description_maintenance" name="description_maintenance"
+                        class="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
+                        placeholder="Descripción" required/>
+                </div>
+                <div class="relative z-0 w-full mb-5 group">
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="factura">
+                        Cargar Factura (PDF)
+                    </label>
+                    <input class="block w-full h-10 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer 
+        bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 p-2.5"
+                        id="factura" type="file" name="factura" accept="application/pdf">
+                                    
+                </div>
+
+            </div>
+
 
             <div class="flex justify-end mt-4">
                 <button type="button"
@@ -144,6 +160,7 @@ bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gr
             document.querySelector('#date_maintenance').value = maintenance.date_maintenance || '';
             document.querySelector('#date_next_maintenance').value = maintenance.date_next_maintenance || '';
             document.querySelector('#status').value = maintenance.status || '';
+            document.querySelector('#description_maintenance').value = maintenance.description_maintenance || '';
 
         }
     }

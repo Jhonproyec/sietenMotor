@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('fuel_type')->nullable();
             $table->foreignId('id_client')->constrained('clients');
             $table->foreignId('id_user')->constrained('users');
+            $table->date('date_entered');
             $table->timestamps();
         });
     }

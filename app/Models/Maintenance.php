@@ -15,6 +15,7 @@ class Maintenance extends Model
         'date_next_maintenance',
         'status',
         'factura',
-        'id_vehicle'
+        'id_vehicle',
+        'description_maintenance'
     ];
 }
