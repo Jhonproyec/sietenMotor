@@ -7,9 +7,9 @@ use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
 
-// Ruta principal
-Route::get('/', [ClientController::class, 'index'])->name('clientes.index');
-
+Route::get('/', [ClientController::class, 'index'])
+    ->name('clientes.index')
+    ->middleware('auth');
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
