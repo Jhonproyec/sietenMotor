@@ -9,7 +9,7 @@
     <div class="container-login">
         <div class="card-login">
             <div class="bg-image">
-                <img src="{{ asset('build/assets/img/custom_background.png') }}" alt="">
+                <img src="{{ asset('img/custom_background.png') }}" alt="">
             </div>
             <div class="authentication">
 

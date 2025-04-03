@@ -15,5 +15,5 @@ Route::get('clientes/vehiculos/{id}', [ClientController::class, 'vehiculos'])->n
 Route::resource('vehiculos', VehiclesController::class);
 // Route::resource('detalles-vehiculo', DetailVehicleController::class);
 Route::resource('mantenimiento', MaintenanceController::class);
-Route::get('mantenimiento/downloadPDF/{filename}', [MaintenanceController::class, 'downloadPDF'])->name('mantenimiento-downloadPDF');
+Route::get('mantenimiento/downloadPDF/{filename}', [MaintenanceController::class, 'downloadPDF'])->name('mantenimiento.downloadPDF');
 Route::get('vehiculos/detalles_vehiculo/{id}', [VehiclesController::class, 'detalles_vehiculo'])->name('vehiculos.detalles_vehiculo');

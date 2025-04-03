@@ -1,7 +1,8 @@
 <div class="flex justify-end w-full">
     <!-- <h1 class="text-xl">Historial Mantenimiento</h1> -->
     <button onclick="openModal(null)" type="button"
-        class="w-55 py-2.5 px-5 mb-6 text-sm font-medium text-white focus:outline-none bg-[var(--color-btn)] rounded-lg border border-[var(--color-btn)] hover:bg-[var(--color-btn-hover)] ">
+    class="btn btn-primary" data-bs-toggle="modal"
+    data-bs-target="#addmaintenance">
         <i class="fa-solid fa-plus"></i> Agregar mantenimiento
     </button>
 </div>
@@ -9,10 +10,10 @@
 
 <div class="relative overflow-x-auto pt-6">
     <!-- Tabla de Clientes -->
-    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+    <table class="table">
+        <thead class="fs-5 table-light">
             <tr>
-                <th scope="col" class="px-6 py-3">Id. Mantenimiento</th>
+                <th scope="col" class="px-6 py-3">#</th>
                 <th scope="col" class="px-6 py-3">Mecánico Encargado</th>
                 <th scope="col" class="px-6 py-3">Fecha Mantenimiento</th>
                 <th scope="col" class="px-6 py-3">Descripción Mantenimiento</th>
@@ -22,7 +23,7 @@
                 <th scope="col" class="px-6 py-3 text-center">Acciones</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="fs-5">
             @foreach($maintenances as $maintenance)
 
             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
@@ -34,8 +35,8 @@
                 <td class="px-6 py-4">{{ $maintenance->status}}</td>
                 <td>
                     @if (!empty($maintenance->factura))
-                    <a href="{{ route('admin.mantenimiento.downloadPDF', basename($maintenance->factura)) }}" class="flex items-center justify-center">
-                        <flux:menu.item style="display: flex; justify-content: center; align-items: center; cursor: pointer;" icon="document-arrow-down"></flux:menu.item>
+                    <a href="{{ route('admin.mantenimiento.downloadPDF', basename($maintenance->factura)) }}" class="fs-4 pt-3 flex items-center justify-center">
+                        <i class="fa-solid fa-download"></i>
                     </a>
                     @else
                     <span>No cargada</span>
@@ -43,14 +44,17 @@
                 </td>
                 <td>
                     <flux:dropdown>
-                        <flux:button icon:trailing="ellipsis-vertical" class="icon-more-actions">
+                        <flux:button style="border:none !important;" icon:trailing="ellipsis-vertical" class="icon-more-actions">
                         </flux:button>
 
                         <flux:menu>
-                            <flux:menu.item icon="pencil-square"
+                            <flux:menu.item data-bs-toggle="modal"
+                            data-bs-target="#addmaintenance" icon="pencil-square"
                                 onclick="openModal({{ json_encode($maintenance)}})">Editar</flux:menu.item>
                             <form class="delete-form"
                                 action="{{ route('admin.mantenimiento.destroy', $maintenance->id) }}" method="POST">
+                                <input type="hidden" name="previous_url" value="{{ request()->fullUrl() }}">
+                                <input type="hidden" name="id" value="{{ $maintenance->id }}">
                                 @csrf
                                 @method('DELETE')
                                 <flux:menu.item onclick="submitDeleteForm(event, this)" icon="trash"
@@ -70,81 +74,101 @@
 </div>
 
 
-<!-- Modal Nuevo Cliente -->
-<div class="modal fixed inset-0 z-50 bg-[var(--color-bg-modal)] flex justify-center items-center hidden">
-    <div class="bg-white rounded-lg p-4 w-full max-w-3xl max-h-full">
-        <h2 class="text-2xl font-semibold">Nuevo mantenimiento</h2>
-        <form class="max-w-2xl mx-auto mt-6" method="POST" action="{{ route('admin.mantenimiento.store') }}" enctype="multipart/form-data">
+
+<!-- Modal -->
+<div class="modal fade" id="addmaintenance" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form class="modal-content" method="POST" action="{{ route('admin.mantenimiento.store') }}" enctype="multipart/form-data">
             @csrf
-            <input type="hidden" id="id_maintenance" name="id_maintenance">
-            <input type="hidden" id="id_vehicle" name="id_vehicle" value="{{$vehicle_id}}">
-            <div class="grid md:grid-cols-2 md:gap-6">
-                <div class="relative z-0 w-full mb-5 group">
-                    <label for="mechanic_charge"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre mecánico encargado</label>
-                    <input type="text" id="mechanic_charge" name="mechanic_charge"
-                        class="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                        placeholder="Juan Perez" required />
-                </div>
-                <div class="relative z-0 w-full mb-5 group">
-                    <label for="date_maintenance" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha Mantenimiento</label>
-                    <input type="date" id="date_maintenance" name="date_maintenance"
-                        class="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                        required />
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Nuevo Mantenimiento</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div id="createClientForm" class="max-w-2xl mx-auto mt-6">
+                    <input type="hidden" id="id_maintenance" name="id_maintenance">
+                    <input type="hidden" id="id_vehicle" name="id_vehicle" value="{{$vehicle_id}}">
+                    <input type="hidden" name="previous_url" value="{{ request()->fullUrl() }}">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="mechanic_charge" class="form-label">Nombre mecánico
+                                    encargado</label>
+                                <input type="text" id="mechanic_charge" name="mechanic_charge"
+                                    class="form-control custom-border" placeholder="Juan Perez" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="date_maintenance" class="form-label">Fecha
+                                    Mantenimiento</label>
+                                <input type="date" id="date_maintenance" name="date_maintenance"
+                                    class="form-control custom-border" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="date_next_maintenance" class="form-label">Fecha Próximo
+                                    Mantenimiento (opcional)</label>
+                                <input type="date" id="date_next_maintenance" name="date_next_maintenance"
+                                    class="form-control custom-border" placeholder="Juan Perez" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Seleccionar
+                                    Estado</label>
+                                <select name="status" required id="status" class="form-control custom-border">
+                                    <option selected>Estado</option>
+                                    <option value="Ingresado">Ingresado</option>
+                                    <option value="Mantenimiento">Mantenimiento</option>
+                                    <option value="Finalizado">Finalizado</option>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="description_maintenance" class="form-label">Descripción
+                                    Mantenimiento</label>
+                                <input type="text" id="description_maintenance" name="description_maintenance"
+                                    class="form-control custom-border" placeholder="Descripción" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label" for="factura">
+                                    Cargar Factura (PDF)
+                                </label>
+                                <input class="form-control custom-border" id="factura" type="file"
+                                    name="factura" accept="application/pdf">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="grid md:grid-cols-2 md:gap-6">
-                <div class="relative z-0 w-full mb-5 group">
-                    <label for="date_next_maintenance"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha Próximo mantenimiento (opcional)</label>
-                    <input type="date" id="date_next_maintenance" name="date_next_maintenance"
-                        class="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                        placeholder="Juan Perez" />
+            <div class="modal-footer">
+                <div class="flex justify-end">
+                    <button type="button"
+                        class="closeModalButton px-4 py-2 mr-3 bg-red-500 text-white rounded">Cerrar</button>
+                    <button style="margin-left: 10px;" type="submit" class="btn btn-primary">Guardar</button>
                 </div>
-                <div class="relative z-0 w-full mb-5 group">
-                    <label for="sstatus" class="block mb-2 text-sm font-medium text-gray-900">Seleccionar
-                        Estadp</label>
-                    <select name="status" required id="status"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ">
-                        <option selected>Estado</option>
-                        <option value="Ingresado">Ingresado</option>
-                        <option value="Mantenimiento">Mantenimiento</option>
-                        <option value="Finalizado">Finalizado</option>
-
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 md:gap-6">
-                <div class="relative z-0 w-full mb-5 group">
-                    <label for="description_maintenance"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descripción Mantenimiento</label>
-                    <input type="text" id="description_maintenance" name="description_maintenance"
-                        class="border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
-                        placeholder="Descripción" required/>
-                </div>
-                <div class="relative z-0 w-full mb-5 group">
-                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="factura">
-                        Cargar Factura (PDF)
-                    </label>
-                    <input class="block w-full h-10 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer 
-        bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 p-2.5"
-                        id="factura" type="file" name="factura" accept="application/pdf">
-                                    
-                </div>
-
-            </div>
-
-
-            <div class="flex justify-end mt-4">
-                <button type="button"
-                    class="closeModalButton px-4 py-2 mr-3 bg-red-500 text-white rounded">Cerrar</button>
-                <button type="submit" class="px-4 py-2 bg-[var(--color-btn)] text-white rounded">Guardar</button>
             </div>
         </form>
     </div>
 </div>
+
+
+
+
+
 
 @push('js')
 <script>

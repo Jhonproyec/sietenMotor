@@ -1,152 +1,204 @@
 @php
-    $menu = [
-        [
-            'name' => 'Clientes',
-                'icon' => 'users',
-                'url' => route('admin.clientes.index'),
-                'current' => request()->routeIs('admin.clientes.*')
-        ],
-        [
-                'name' => 'Vehículos',
-                'icon' => 'truck',
-                'url' => route('admin.vehiculos.index'),
-                'current' => request()->routeIs('admin.vehiculos.*')
-        ],
+$menu = [
+[
+'name' => 'Clientes',
+'icon' => 'users',
+'url' => route('admin.clientes.index'),
+'current' => request()->routeIs('admin.clientes.*')
+],
+[
+'name' => 'Vehículos',
+'icon' => 'truck',
+'url' => route('admin.vehiculos.index'),
+'current' => request()->routeIs('admin.vehiculos.*')
+],
 ];
 @endphp
 
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-    <head>
-        @include('partials.head')
-    </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:sidebar sticky stashable class="border-r border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
-            <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
-            <a href="{{ route('dashboard') }}" class="mr-5 flex items-center space-x-2" wire:navigate>
-                <x-app-logo />
-            </a>
+<head>
+    @include('partials.head')
+    <style>
+        /* Sidebar */
+        #sidebar-wrapper {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 300px;
+            height: 100%;
+            background: rgb(245, 245, 245);
+            color: white;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            padding-top: 20px;
+            overflow: hidden;
+        }
 
-            <flux:navlist variant="outline">
-                {{-- <flux:navlist.group :heading="__('Platform')" class="grid"> --}}
-                    @foreach ($menu as $item)
-                        <flux:navlist.item icon="{{$item['icon']}}" :href="$item['url']" :current="$item['current']" wire:navigate>{{ $item['name'] }}</flux:navlist.item>
-                        
-                    @endforeach
-                {{-- </flux:navlist.group> --}}
-            </flux:navlist>
+        #sidebar-wrapper.active {
+            left: 0;
+        }
 
-            <flux:spacer />
+        .card-content {
+            width: 100%;
+        }
 
-            <flux:navlist variant="outline">
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                {{ __('Repository') }}
-                </flux:navlist.item>
+        /* Contenido */
+        #page-content-wrapper {
+            margin-top: 30px;
+        }
 
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits" target="_blank">
-                {{ __('Documentation') }}
-                </flux:navlist.item>
-            </flux:navlist>
+        .content {
+            background-color: #ffffff;
+            border-radius: 8px;
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+        }
 
-            <!-- Desktop User Menu -->
-            <flux:dropdown position="bottom" align="start">
-                <flux:profile
-                    :name="auth()->user()->name"
-                    :initials="auth()->user()->initials()"
-                    icon-trailing="chevrons-up-down"
-                />
+        .menu {
+            margin-top: 35px;
+            margin-left: -15px;
+            width: 100%;
+            font-size: 17px;
+        }
+        .menu a{
+            color: rgb(82, 82, 82);
+        }
 
-                <flux:menu class="w-[220px]">
-                    <flux:menu.radio.group>
-                        <div class="p-0 text-sm font-normal">
-                            <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
-                                    <span
-                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
-                                    >
-                                        {{ auth()->user()->initials() }}
-                                    </span>
-                                </span>
+        .menu-item {
+            padding: 12px 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
 
-                                <div class="grid flex-1 text-left text-sm leading-tight">
-                                    <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
-                                    <span class="truncate text-xs">{{ auth()->user()->email }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </flux:menu.radio.group>
+        .active {
+            width: 100%;
+            display: block;
+            background-color: rgba(23, 188, 155, 0.2);
+            border-radius: 5px
 
-                    <flux:menu.separator />
+        }
 
-                    <flux:menu.radio.group>
-                        <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
-                    </flux:menu.radio.group>
+        .menu .active  {
+            color: #17bc9a;
+        }
 
-                    <flux:menu.separator />
+        #page-content-wrapper.sidebar-active {
+            margin-left: 250px;
+        }
 
-                    <form method="POST" action="{{ route('logout') }}" class="w-full">
-                        @csrf
-                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
-                            {{ __('Log Out') }}
-                        </flux:menu.item>
-                    </form>
-                </flux:menu>
-            </flux:dropdown>
-        </flux:sidebar>
+        #sidebar-wrapper img {
+            width: 220px;
+        }
 
-        <!-- Mobile User Menu -->
-        <flux:header class="lg:hidden">
-            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+        /* Navbar */
+        .navbar-header {
+            width: 100%;
+            background: #ffffff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 999;
 
-            <flux:spacer />
+        }
 
-            <flux:dropdown position="top" align="end">
-                <flux:profile
-                    :initials="auth()->user()->initials()"
-                    icon-trailing="chevron-down"
-                />
+        /* Botón del menú */
+        .hamburger {
+            width: 38px;
+            height: 38px;
+            font-size: 20px;
+            color: #17bc9a;
+            background-color: rgba(23, 188, 155, 0.2);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
 
-                <flux:menu>
-                    <flux:menu.radio.group>
-                        <div class="p-0 text-sm font-normal">
-                            <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
-                                    <span
-                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
-                                    >
-                                        {{ auth()->user()->initials() }}
-                                    </span>
-                                </span>
+        .hamburger.sidebar-active {
+            transform: translateX(310px);
+        }
 
-                                <div class="grid flex-1 text-left text-sm leading-tight">
-                                    <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
-                                    <span class="truncate text-xs">{{ auth()->user()->email }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </flux:menu.radio.group>
+        .logo {
+            width: 100px;
+            height: 90px;
+            box-sizing: border-box;
+            margin-left: 10px;
+        }
+    </style>
+</head>
 
-                    <flux:menu.separator />
 
-                    <flux:menu.radio.group>
-                        <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
-                    </flux:menu.radio.group>
 
-                    <flux:menu.separator />
+<body>
+    <div id="sidebar-wrapper" class="active d-flex flex-column">
+        <h3 class="text-center">
+            <img class="logo" src="{{ asset('img/sietemotor-logo.png') }}" alt="Logo taller Sieten Motor">
 
-                    <form method="POST" action="{{ route('logout') }}" class="w-full">
-                        @csrf
-                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
-                            {{ __('Log Out') }}
-                        </flux:menu.item>
-                    </form>
-                </flux:menu>
-            </flux:dropdown>
-        </flux:header>
+        </h3>
+        <ul class="menu ">
+            <div class="top">
+                <a class="{{ request()->routeIs('admin.clientes.*') ? 'active' : '' }}" href="{{route('admin.clientes.index')}}">
+                    <li class="menu-item">
+                        <i class="fa-solid fa-users"></i> Clientes
+                    </li>
+                </a>
+                <a class="{{ request()->routeIs('admin.vehiculos.*') ? 'active' : '' }}" href="{{route('admin.vehiculos.index')}}">
+                    <li class="menu-item">
+                        <i class="fa-solid fa-car-rear"></i> Vehículos
+                    </li>
+                </a>
+            </div>
+        
+        </ul>
+        <!-- Se usa mt-auto para empujar la sección al fondo -->
+        <div class="button mt-auto mb-4">
+            <form method="POST" action="{{ route('logout') }}" class="w-full">
+                @csrf
+                <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
+                    {{ __('Log Out') }}
+                </flux:menu.item>
+            </form>
+        </div>
+        
+    </div>
 
-        {{ $slot }}
+    <div class="navbar-header">
+        <button type="button" class="hamburger sidebar-active" id="menu-toggle">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
 
-        @fluxScripts
-    </body>
+    <div class="card-content">
+        <div id="page-content-wrapper" class="sidebar-active">
+            <div class="content">
+                {{ $slot }}
+
+                @fluxScripts
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.getElementById('sidebar-wrapper');
+            const content = document.getElementById('page-content-wrapper');
+
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                content.classList.toggle('sidebar-active');
+                menuToggle.classList.toggle('sidebar-active');
+            });
+        });
+    </script>
+</body>
+
 </html>

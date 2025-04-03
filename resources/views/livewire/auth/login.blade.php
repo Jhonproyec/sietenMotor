@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-6">
     <div class="header-authentication">
-        <img style="margin: auto" class="logo" src="{{ asset('build/assets/img/sietemotor-logo.png') }}" alt="Logo taller Sieten Motor">
+        <img style="margin: auto" class="logo" src="{{ asset('img/sietemotor-logo.png') }}" alt="Logo taller Sieten Motor">
         <h4 class="mt-2">Bienvenido a SietenMotor👋</h4>
         <p>Por favor, inicia sesión en tu cuenta</p>
     </div>
